@@ -11,36 +11,56 @@ const architectAgent = {
 
   buildPrompt(product, context = {}) {
     const logs = context.logs || { deals: [], agents: [] };
-    const logSummary = JSON.stringify(logs).substring(0, 10000); // Limit context size
+    const analytics = context.analytics || {};
+
+    // We prioritize analytics data as it's more token-efficient
+    const analyticsSummary = JSON.stringify(analytics, null, 2);
+
+    // We still include some raw logs but limited to provide "flavor" and specific details
+    const recentLogs = [...logs.deals, ...logs.agents]
+      .sort((a, b) => b.file.localeCompare(a.file))
+      .slice(0, 10);
+
+    const logSummary = JSON.stringify(recentLogs).substring(0, 5000);
 
     return `
 You are the ARCHITECT — the Master Analyst of this AI ecosystem's Second Brain.
 Your role is to analyze all past activities and deals to find patterns, identify successful products, and point out failures.
 
-SECOND BRAIN DATA:
+AGGREGATED ANALYTICS:
+${analyticsSummary}
+
+RECENT LOG DETAILS (Sample):
 ${logSummary}
 
 YOUR TASK:
-Analyze the data and create a master plan for the future. Output a JSON object:
+Analyze the data and create a master plan for the future.
+Focus on:
+1. Identifying which pipeline steps are failing most often based on the analytics.
+2. Spotting which agents are high-performers vs bottlenecks.
+3. Correlating success with specific models or personas if visible in the data.
+4. Recommending optimizations for the 5-stage pipeline (Brainstorm -> Research -> Production -> Publishing -> Early Signal).
+
+Output a JSON object:
 {
   "agent": "Architect",
   "headline": "Architectural Analysis & Future Plan",
-  "summary": "High-level summary of what you discovered in the logs.",
+  "summary": "High-level summary of what you discovered in the logs and analytics.",
   "insights": [
-    "Insight 1 about successful products/platforms",
-    "Insight 2 about common failure points"
+    "Insight 1 about pipeline bottlenecks (e.g., 'Dennis is failing at step 2')",
+    "Insight 2 about cost/performance (e.g., 'High token usage in Bunk agent')"
   ],
   "future_plan": [
-    "Step 1: Recommended strategic shift",
-    "Step 2: New product category to explore",
-    "Step 3: Optimization for specific platforms"
+    "Step 1: Strategic optimization (e.g., 'Switch Dennis to a different model for research')",
+    "Step 2: Process improvement",
+    "Step 3: Scaling strategy"
   ],
   "recommendedNext": "Share this plan with Hermes to update the global strategy."
 }
 
 RULES:
-- Be data-driven based on the logs provided.
-- If logs are empty, suggest a starting strategy to populate the brain.
+- Be data-driven based on the analytics provided.
+- If data is sparse, suggest specific logging improvements to gather better signal.
 - Focus on scaling what works and cutting what doesn't.
 `.trim();
   },
