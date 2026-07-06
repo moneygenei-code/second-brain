@@ -4,7 +4,9 @@
   "description": "",
   "main": "secondBrain.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "architect": "node runArchitect.js",
+    "dashboard": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +22,7 @@
   "homepage": "https://github.com/moneygenei-code/second-brain#readme",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
-    "dotenv": "^17.4.2"
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1"
   }
 }

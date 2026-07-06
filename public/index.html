@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Strategy Hyper-Mesh // Unified Second Brain Vault</title>
+    <style>
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-purple: #b900ff;
+            --matrix-dark: #03030c;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--matrix-dark);
+            font-family: 'Courier New', Courier, monospace;
+            color: #fff;
+            user-select: none;
+        }
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        /* Grandiose Sci-Fi HUD Overlay */
+        .hud-element {
+            position: absolute;
+            z-index: 10;
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        #hud-header {
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            width: 80%;
+        }
+        #hud-header h1 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: var(--neon-blue);
+            text-shadow: 0 0 15px rgba(0, 243, 255, 0.6);
+        }
+        #hud-header p {
+            margin: 5px 0 0 0;
+            font-size: 0.75rem;
+            color: #8a99ad;
+        }
+        .hud-panel {
+            background: rgba(3, 3, 12, 0.75);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            padding: 15px;
+            backdrop-filter: blur(5px);
+            box-shadow: inset 0 0 15px rgba(0, 243, 255, 0.05);
+            max-height: 400px;
+            overflow-y: auto;
+            pointer-events: auto;
+        }
+        #left-panel {
+            top: 100px;
+            left: 30px;
+            width: 350px;
+        }
+        #right-panel {
+            top: 100px;
+            right: 30px;
+            width: 350px;
+        }
+        .panel-title {
+            color: var(--neon-purple);
+            font-size: 0.85rem;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(185, 0, 255, 0.3);
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+        .log-line {
+            font-size: 0.7rem;
+            color: #a1b0c4;
+            margin-bottom: 4px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .cyan-text { color: var(--neon-blue); }
+        .purple-text { color: var(--neon-purple); }
+
+        /* Reticle corners for cinematic look */
+        .corner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(0, 243, 255, 0.4);
+            z-index: 5;
+        }
+        .top-left { top: 20px; left: 20px; border-right: none; border-bottom: none; }
+        .top-right { top: 20px; right: 20px; border-left: none; border-bottom: none; }
+        .bottom-left { bottom: 20px; left: 20px; border-right: none; border-top: none; }
+        .bottom-right { bottom: 20px; right: 20px; border-left: none; border-top: none; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-blue);
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+
+    <div class="corner top-left"></div>
+    <div class="corner top-right"></div>
+    <div class="corner bottom-left"></div>
+    <div class="corner bottom-right"></div>
+
+    <div id="hud-header" class="hud-element">
+        <h1>GLOBAL STRATEGY HYPER-MESH // UNIFIED SECOND BRAIN</h1>
+        <p>ARCHITECT-OVERLORD SINGULARITY // SYSTEM MATRIX ACTIVE</p>
+    </div>
+
+    <div id="left-panel" class="hud-panel hud-element">
+        <div class="panel-title">// CORE LOG TRANSMISSIONS</div>
+        <div id="log-container">
+            <div class="log-line"><span class="purple-text">[SYS]</span> initializing orbital uplink...</div>
+        </div>
+    </div>
+
+    <div id="right-panel" class="hud-panel hud-element">
+        <div class="panel-title">// ARCHITECT ANALYSIS</div>
+        <div id="analysis-container">
+            <div class="log-line">Awaiting data stream...</div>
+        </div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <script>
+        // --- DATA INTEGRATION ---
+        async function fetchLogs() {
+            try {
+                const response = await fetch('/api/logs');
+                const data = await response.json();
+
+                const logContainer = document.getElementById('log-container');
+                const analysisContainer = document.getElementById('analysis-container');
+
+                logContainer.innerHTML = '';
+                analysisContainer.innerHTML = '';
+
+                // Fill Logs (Agent Logs)
+                const allLogs = [...data.agents].reverse();
+                allLogs.forEach(log => {
+                    const line = document.createElement('div');
+                    line.className = 'log-line';
+                    const timestamp = log.file.split('_')[0] + ' ' + log.file.split('_')[1].replace(/-/g, ':');
+                    line.innerHTML = `<span class="cyan-text">[${timestamp}]</span> ${log.file}`;
+                    logContainer.appendChild(line);
+                });
+
+                // Fill Analysis (Latest Architect Plan)
+                const architectLogs = data.agents.filter(l => l.file.includes('architect')).reverse();
+                if (architectLogs.length > 0) {
+                    const latest = architectLogs[0].content;
+                    const cleanContent = latest.replace(/---[\s\S]*?---/, '').replace(/#.*?\n/, '');
+                    const line = document.createElement('div');
+                    line.className = 'log-line';
+                    line.textContent = cleanContent;
+                    analysisContainer.appendChild(line);
+                } else {
+                    analysisContainer.innerHTML = '<div class="log-line">No architect plans found.</div>';
+                }
+
+            } catch (err) {
+                console.error('Fetch failed:', err);
+            }
+        }
+
+        setInterval(fetchLogs, 5000);
+        fetchLogs();
+
+        // --- 1. CONFIGURATION & CORE ENGINE ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2('#03030c', 0.015);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 15, 45);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
+        container.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxDistance = 100;
+        controls.minDistance = 10;
+
+        // --- 2. LIGHTING ENGINE ---
+        const ambientLight = new THREE.AmbientLight(0x0a0a23, 1.5);
+        scene.add(ambientLight);
+
+        const coreLight = new THREE.PointLight(0x00f3ff, 3, 80);
+        scene.add(coreLight);
+
+        const auxLight = new THREE.PointLight(0xb900ff, 2, 60);
+        auxLight.position.set(-20, 20, -20);
+        scene.add(auxLight);
+
+        // --- 3. THE HYPER-COSMIC ENVIRONMENT (STARFIELD) ---
+        const starCount = 3000;
+        const starGeometry = new THREE.BufferGeometry();
+        const starPositions = new Float32Array(starCount * 3);
+        const starColors = new Float32Array(starCount * 3);
+
+        for(let i=0; i<starCount*3; i+=3) {
+            const u = Math.random();
+            const v = Math.random();
+            const theta = u * 2.0 * Math.PI;
+            const phi = Math.acos(2.0 * v - 1.0);
+            const r = 80 + Math.random() * 40;
+
+            starPositions[i] = r * Math.sin(phi) * Math.cos(theta);
+            starPositions[i+1] = r * Math.sin(phi) * Math.sin(theta);
+            starPositions[i+2] = r * Math.cos(phi);
+
+            const isCyan = Math.random() > 0.5;
+            starColors[i] = isCyan ? 0.0 : 0.7;
+            starColors[i+1] = isCyan ? 0.95 : 0.0;
+            starColors[i+2] = isCyan ? 1.0 : 1.0;
+        }
+        starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+        starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
+
+        const starMaterial = new THREE.PointsMaterial({
+            size: 0.4,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
+        });
+        const starField = new THREE.Points(starGeometry, starMaterial);
+        scene.add(starField);
+
+        // --- 4. METAPHORICAL GLOBAL SPHERE BOUNDARY ---
+        const boundaryGeom = new THREE.SphereGeometry(25, 64, 64);
+        const boundaryMat = new THREE.MeshPhysicalMaterial({
+            color: 0x111b44,
+            transmission: 0.95,
+            transparent: true,
+            opacity: 0.15,
+            roughness: 0.05,
+            metalness: 0.1,
+            clearcoat: 1.0,
+            side: THREE.DoubleSide,
+            depthWrite: false
+        });
+        const boundaryShield = new THREE.Mesh(boundaryGeom, boundaryMat);
+        scene.add(boundaryShield);
+
+        // --- 5. THE SINGULARITY CORE (ARCHITECT SYSTEM ARCHITECTURE) ---
+        const coreGroup = new THREE.Group();
+        scene.add(coreGroup);
+
+        const innerCoreMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(2.5, 32, 32),
+            new THREE.MeshBasicMaterial({ color: 0xffffff })
+        );
+        coreGroup.add(innerCoreMesh);
+
+        const outerCoreMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(4, 24, 24),
+            new THREE.MeshStandardMaterial({
+                color: 0x00f3ff,
+                wireframe: true,
+                emissive: 0x00f3ff,
+                emissiveIntensity: 2
+            })
+        );
+        coreGroup.add(outerCoreMesh);
+
+        // --- 6. ORBITAL TELEMETRY RINGS ---
+        const ringMat = new THREE.MeshStandardMaterial({
+            color: 0xb900ff,
+            wireframe: true,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.4
+        });
+
+        const trackingRing1 = new THREE.Mesh(new THREE.TorusGeometry(12, 0.1, 8, 64), ringMat);
+        trackingRing1.rotation.x = Math.PI / 3;
+        scene.add(trackingRing1);
+
+        const trackingRing2 = new THREE.Mesh(new THREE.TorusGeometry(16, 0.05, 4, 48), new THREE.MeshStandardMaterial({
+            color: 0x00f3ff,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.3
+        }));
+        trackingRing2.rotation.y = Math.PI / 4;
+        scene.add(trackingRing2);
+
+        // --- 7. DISTRIBUTED DATA NEURAL NODES ---
+        const nodeMasterGroup = new THREE.Group();
+        scene.add(nodeMasterGroup);
+
+        const nodeCount = 45;
+        const nodeClusters = [];
+        const nodeGeometry = new THREE.OctahedronGeometry(0.6, 1);
+        const nodeLineMaterial = new THREE.LineBasicMaterial({ color: 0x00f3ff, transparent: true, opacity: 0.25 });
+
+        for(let i=0; i<nodeCount; i++) {
+            const phi = Math.acos(-1 + (2 * i) / nodeCount);
+            const theta = Math.sqrt(nodeCount * Math.PI) * phi;
+            const scalarRadius = 10 + Math.random() * 12;
+
+            const x = scalarRadius * Math.cos(theta) * Math.sin(phi);
+            const y = scalarRadius * Math.sin(theta) * Math.sin(phi);
+            const z = scalarRadius * Math.cos(phi);
+
+            const nodeMeshMat = new THREE.MeshStandardMaterial({
+                color: Math.random() > 0.4 ? 0x00f3ff : 0xb900ff,
+                emissive: Math.random() > 0.4 ? 0x00a2ff : 0x6e00ff,
+                emissiveIntensity: 1.5,
+                metalness: 0.8,
+                roughness: 0.2
+            });
+
+            const singleNode = new THREE.Mesh(nodeGeometry, nodeMeshMat);
+            singleNode.position.set(x, y, z);
+            nodeMasterGroup.add(singleNode);
+
+            const points = [new THREE.Vector3(0,0,0), new THREE.Vector3(x, y, z)];
+            const lineGeom = new THREE.BufferGeometry().setFromPoints(points);
+            const linkLine = new THREE.Line(lineGeom, nodeLineMaterial);
+            nodeMasterGroup.add(linkLine);
+
+            nodeClusters.push(singleNode);
+        }
+
+        // --- 8. ANIMATION LOOP ENGINE ---
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            starField.rotation.y = elapsedTime * 0.01;
+            coreGroup.rotation.y -= 0.008;
+            const pulseScale = 1 + Math.sin(elapsedTime * 3) * 0.08;
+            outerCoreMesh.scale.set(pulseScale, pulseScale, pulseScale);
+
+            trackingRing1.rotation.z = elapsedTime * 0.05;
+            trackingRing2.rotation.x = -elapsedTime * 0.03;
+
+            nodeMasterGroup.rotation.y = elapsedTime * 0.02;
+            nodeMasterGroup.rotation.z = Math.sin(elapsedTime * 0.05) * 0.1;
+
+            nodeClusters.forEach((node, index) => {
+                const offset = index * 0.5;
+                const nodePulse = 1 + Math.sin(elapsedTime * 2 + offset) * 0.2;
+                node.scale.set(nodePulse, nodePulse, nodePulse);
+            });
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
