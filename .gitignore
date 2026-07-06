@@ -4,3 +4,5 @@ Money/
 dist/
 *.log
 second-brain-vault/
+second-brain.db
+package-lock.json
