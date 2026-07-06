@@ -1,67 +1,89 @@
-# Second Brain - Overlord Ops Floor Edition
+# Second Brain AI Ecosystem: Command Center
 
-Transferred UI and agent architecture from Money-Ai-dashboard PR #7.
+> **Goal:** To create a persistent, evolving, and inspectable long-term memory system for a multi-agent AI ecosystem, providing a "Command Center" for human-agent collaboration.
 
-## Key Features
+## 🧠 Overview
 
-### Agent Architecture
-- **BaseAgent**: Core class for all agents with schema validation (Zod)
-- **HermesManager**: Strategic orchestrator
-- **DennisAgent**: Research & Ideation specialist
-- **BunkAgent**: Production & Design specialist
-- **PlatformAgents**: Specialized agents for e-commerce platforms
+The **Second Brain Command Center** is a desktop application designed to act as the central nervous system for your AI agents. It captures every activity, deal, and strategic thought in a structured Markdown vault, synchronizes it to a high-performance SQLite database, and provides a real-time dashboard for monitoring and strategic planning.
 
-### UI Components
-- **Overlord Ops Floor**: Cyberpunk-themed 3-column dashboard
-- **Hex-Grid Map**: Central mission visualization with flow lines
-- **Agent Roster**: Left sidebar with RPG-style stats and progression
-- **Quest Panel**: Right sidebar for mission tracking and upgrades
-- **Ticker Log**: Real-time activity log at bottom
+---
 
-### RPG Progression System
-- Agent Levels & XP
-- Ranks (CMD-3, RSC-2, etc.)
-- Unlockable Perks at level milestones
-- Treasury economy with upgrades
-- Achievements system
+## 🚀 Current Features
 
-### Mission Pipeline
-1. Brainstorm (Hermes)
-2. Research & Ideation (Dennis)
-3. Production & Copy (Bunk)
-4. Publishing Pass (Platform Specialist)
-5. Early Signal (Comment Analyst)
+### 1. **Live Activity Feed**
+- Real-time monitoring of all agent activities and deal attempts.
+- Visual distinction between "Activity" and "Deal" logs.
+- Color-coded status indicators (Success/Failure) for immediate health checks.
 
-## File Structure
+### 2. **Automated Sync Engine**
+- **File System Watcher:** Uses `chokidar` to monitor the `second-brain-vault` directory.
+- **SQLite Integration:** Automatically indexes Markdown frontmatter and content into `second-brain.db` for instant querying and analytics.
+- **Markdown-First:** Your data remains yours. The source of truth is always human-readable Markdown files.
 
-```
-├── agents-config.js          # All agent definitions with stats
-├── agents/
-│   ├── baseAgent.js         # Base class with schema validation
-│   ├── hermesManager.js
-│   ├── dennisAgent.js
-│   ├── bunkAgent.js
-│   ├── commentAnalystAgent.js
-│   ├── platformAgents.js    # Factory for platform specialists
-│   └── promptUtils.js       # Template loading and filling
-└── prompts/
-    ├── hermes/orchestration.md
-    ├── dennis/research.md
-    ├── bunk/production.md
-    ├── comment_analyst/analysis.md
-    └── platforms/generic.md
-```
+### 3. **Architect Agent & Roadmap**
+- **Strategic Analysis:** The "Architect" agent analyzes historical logs to identify patterns and failures.
+- **Future Planning:** Automatically generates a "Future Roadmap" based on the Architect's strategic insights.
+- **Interactive Triggers:** Run the Architect agent directly from the dashboard to update your strategy.
 
-## Agent Personas
-- **Balanced**: Neutral, measured approach
-- **Aggressive**: Fast-paced, high-risk strategy
-- **Academic**: Research-driven, methodical
-- **Creative**: Innovative, unconventional
-- **Skeptical**: Careful, verification-focused
+### 4. **Secure Desktop Experience**
+- Built with **Electron**, featuring a modern, dark-themed "Glassmorphism" UI.
+- Implements security best practices (Isolated renderer, `contextBridge`, and `preload` scripts).
 
-## Persistence
-- Agent stats (levels, XP, ranks, perks)
-- Treasury and market upgrades
-- Mission archive
-- Achievements
-- Strategic context (Hermes memory)
+---
+
+## 🗺️ Future Roadmap (Planned)
+
+1. **Vector Search (RAG):** Integrate a vector database to allow agents to perform "Semantic Search" over thousands of historical logs, moving beyond simple keyword matching.
+2. **Hermes Integration:** A dedicated agent for proactive deal-hunting based on the Architect's strategic roadmap.
+3. **Advanced Analytics:** Interactive charts for success rates, token usage, and pipeline efficiency.
+4. **Agent Collaboration:** A "War Room" view where you can see agents communicating with each other in real-time.
+5. **Mobile Companion:** A lightweight mobile viewer for the Second Brain vault.
+
+---
+
+## 🛠️ Technical Documentation
+
+### **Prerequisites**
+- [Node.js](https://nodejs.org/) (v16 or higher)
+- [npm](https://www.npmjs.com/)
+
+### **Installation**
+1. Clone the repository.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Ensure the `second-brain-vault` submodule is initialized:
+   ```bash
+   git submodule update --init --recursive
+   ```
+
+### **Usage**
+- **Start the Command Center:**
+  ```bash
+  npm start
+  ```
+- **Logging from Agents:**
+  Use the `logToSecondBrain` function from `secondBrain.js` to record activities. The app will automatically detect and sync new files.
+
+### **Database Schema**
+- **`logs`**: `id, agentId, agentName, type, status, timestamp, content, filePath`
+- **`roadmap`**: `id, step, status, created_at`
+
+---
+
+## 📁 Project Structure
+
+- `main.js`: Electron entry point and IPC handlers.
+- `secondBrain.js`: Core logging module and analytics logic.
+- `syncEngine.js`: File system watcher and database synchronization.
+- `database.js`: SQLite schema and data operations.
+- `index.html`: Dashboard frontend.
+- `agents/`: Directory for agent logic (e.g., `architectAgent.js`).
+- `second-brain-vault/`: The directory where all Markdown logs are stored.
+
+---
+
+## 🛡️ Privacy & Security
+- **Local-First:** All data, including the SQLite database, stays on your machine.
+- **Secure Bridge:** The UI has no direct access to the Node.js API, protecting your system from malicious log content.
