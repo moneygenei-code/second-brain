@@ -1,18 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const { upsertLog } = require('./database'); // NEW: DB integration
 
 const VAULT_PATH = path.join(__dirname, 'second-brain-vault');
 
 /**
  * Log agent activity or a deal to the Second Brain vault
- * @param {Object} entry
- * @param {string} entry.agentId
- * @param {string} entry.agentName
- * @param {string} entry.type - 'activity' or 'deal'
- * @param {string} entry.status - 'success' or 'failure'
- * @param {Object} entry.data - The actual content/payload
- * @param {string} [entry.error] - Error message if failed
  */
 async function logToSecondBrain({ agentId, agentName, type, status, data, error }) {
   try {
@@ -56,10 +50,28 @@ ${JSON.stringify(data, null, 2)}
 
     await fs.promises.writeFile(filePath, content, 'utf8');
 
+    // NEW: Sync to DB immediately
+    try {
+        upsertLog({
+            id: `${dateStr}_${timeStr}_${agentId}`,
+            agentId,
+            agentName,
+            type,
+            status,
+            timestamp,
+            content: content,
+            filePath
+        });
+    } catch (dbErr) {
+        console.error('[SecondBrain] DB log failed:', dbErr.message);
+    }
+
     // Auto-commit to the second brain repo
     try {
-      execSync(`git add ${folder}/${fileName}`, { cwd: VAULT_PATH });
-      execSync(`git commit -m "Auto-log: ${type} from ${agentId} at ${timestamp}"`, { cwd: VAULT_PATH });
+      if (fs.existsSync(path.join(VAULT_PATH, '.git'))) {
+        execSync(`git add ${folder}/${fileName}`, { cwd: VAULT_PATH });
+        execSync(`git commit -m "Auto-log: ${type} from ${agentId} at ${timestamp}"`, { cwd: VAULT_PATH });
+      }
     } catch (gitErr) {
       console.error('[SecondBrain] Git auto-commit failed:', gitErr.message);
     }

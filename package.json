@@ -1,0 +1,31 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moneygenei-code/second-brain.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/moneygenei-code/second-brain/issues"
+  },
+  "homepage": "https://github.com/moneygenei-code/second-brain#readme",
+  "dependencies": {
+    "better-sqlite3": "^12.11.1",
+    "chokidar": "^5.0.0",
+    "electron": "^43.0.0",
+    "gray-matter": "^4.0.3"
+  },
+  "devDependencies": {
+    "electron-builder": "^26.15.3"
+  }
+}

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Second Brain Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #050505; color: #e5e5e5; font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .neon-border { border: 1px solid #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.2); }
+        .status-success { color: #10b981; }
+        .status-failure { color: #ef4444; }
+    </style>
+</head>
+<body class="p-8">
+    <div class="max-w-6xl mx-auto">
+        <header class="flex justify-between items-center mb-12">
+            <div>
+                <h1 class="text-4xl font-bold tracking-tighter text-white">COMMAND CENTER</h1>
+                <p class="text-gray-500">Second Brain AI Ecosystem Ecosystem v1.0</p>
+            </div>
+            <button id="runArchitect" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-all transform hover:scale-105">
+                Run Architect Analyst
+            </button>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Roadmap Column -->
+            <div class="lg:col-span-1 space-y-6">
+                <h2 class="text-xl font-semibold text-blue-400 uppercase tracking-widest">Future Roadmap</h2>
+                <div id="roadmapList" class="space-y-4">
+                    <!-- Roadmap items injected here -->
+                </div>
+            </div>
+
+            <!-- Logs Column -->
+            <div class="lg:col-span-2 space-y-6">
+                <h2 class="text-xl font-semibold text-emerald-400 uppercase tracking-widest">Live Activity Feed</h2>
+                <div id="logFeed" class="space-y-4 max-h-[600px] overflow-y-auto pr-4 custom-scrollbar">
+                    <!-- Logs injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function refreshData() {
+            const logs = await window.api.getLogs();
+            const roadmap = await window.api.getRoadmap();
+
+            const logFeed = document.getElementById('logFeed');
+            logFeed.innerHTML = logs.map(log => `
+                <div class="glass p-4 rounded-xl border-l-4 ${log.status === 'success' ? 'border-emerald-500' : 'border-red-500'} transition-all hover:bg-white/5">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="font-mono text-sm text-gray-400">${new Date(log.timestamp).toLocaleString()}</span>
+                        <span class="px-2 py-0.5 rounded text-xs font-bold uppercase ${log.type === 'deal' ? 'bg-purple-900/50 text-purple-300' : 'bg-blue-900/50 text-blue-300'}">
+                            ${log.type}
+                        </span>
+                    </div>
+                    <h3 class="font-bold text-lg">${log.agentName}</h3>
+                    <p class="text-gray-400 text-sm mt-1 line-clamp-2">${log.content.replace(/---[\s\S]*?---/, '').trim().substring(0, 150)}...</p>
+                </div>
+            `).join('');
+
+            const roadmapList = document.getElementById('roadmapList');
+            roadmapList.innerHTML = roadmap.map((item, index) => `
+                <div class="glass p-4 rounded-xl border border-white/5 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                    <p class="text-sm text-gray-500 mb-1">STEP ${roadmap.length - index}</p>
+                    <p class="text-white font-medium">${item.step}</p>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('runArchitect').addEventListener('click', async () => {
+            const btn = document.getElementById('runArchitect');
+            btn.innerText = 'Analyzing...';
+            btn.disabled = true;
+            try {
+                await window.api.runArchitect();
+                await refreshData();
+            } finally {
+                btn.innerText = 'Run Architect Analyst';
+                btn.disabled = false;
+            }
+        });
+
+        // Initial load and polling
+        refreshData();
+        setInterval(refreshData, 5000);
+    </script>
+</body>
+</html>
