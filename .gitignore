@@ -1,0 +1,6 @@
+node_modules/
+agent_data.json
+Money/
+dist/
+*.log
+second-brain-vault/

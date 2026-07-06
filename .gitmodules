@@ -1,0 +1,3 @@
+[submodule "second-brain-vault"]
+	path = second-brain-vault
+	url = https://github.com/moneygenei-code/second-brain.git
