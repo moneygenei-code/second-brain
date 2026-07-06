@@ -5,3 +5,7 @@ dist/
 *.log
 second-brain-vault/
 second-brain.db
+<<<<<<< HEAD
+.env
+=======
+>>>>>>> origin/main

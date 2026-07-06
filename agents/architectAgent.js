@@ -21,7 +21,7 @@ const architectAgent = {
       .sort((a, b) => b.file.localeCompare(a.file))
       .slice(0, 10);
 
-    const logSummary = JSON.stringify(recentLogs).substring(0, 5000);
+    const logSummary = JSON.stringify(recentLogs, null, 2);
 
     return `
 You are the ARCHITECT — the Master Analyst of this AI ecosystem's Second Brain.
