@@ -1,9 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
-const { upsertLog } = require('./database'); // NEW: DB integration
-
+const { execFileSync } = require('child_process');
 const VAULT_PATH = path.join(__dirname, 'second-brain-vault');
+const { upsertLog } = require('./database');
 
 /**
  * Log agent activity or a deal to the Second Brain vault
@@ -24,25 +23,7 @@ async function logToSecondBrain({ agentId, agentName, type, status, data, error 
 
     const filePath = path.join(folderPath, fileName);
 
-    let content = `---
-agent: ${agentId}
-agentName: ${agentName}
-timestamp: ${timestamp}
-type: ${type}
-status: ${status}
----
-
-# ${type.charAt(0).toUpperCase() + type.slice(1)} Log - ${agentName}
-
-**Status:** ${status === 'success' ? '✅ Success' : '❌ Failure'}
-**Time:** ${timestamp}
-
-## Data
-\`\`\`json
-${JSON.stringify(data, null, 2)}
-\`\`\`
-
-`;
+    let content = `---\nagent: ${agentId}\nagentName: ${agentName}\ntimestamp: ${timestamp}\ntype: ${type}\nstatus: ${status}\n---\n\n# ${type.charAt(0).toUpperCase() + type.slice(1)} Log - ${agentName}\n\n**Status:** ${status === 'success' ? '✅ Success' : '❌ Failure'}\n**Time:** ${timestamp}\n\n## Data\n\`\`\`json\n${JSON.stringify(data, null, 2)}\n\`\`\`\n\n`;
 
     if (error) {
       content += `## Error\n${error}\n\n`;
@@ -50,9 +31,9 @@ ${JSON.stringify(data, null, 2)}
 
     await fs.promises.writeFile(filePath, content, 'utf8');
 
-    // NEW: Sync to DB immediately
+    // NEW: Sync to DB immediately (best-effort)
     try {
-        upsertLog({
+        await upsertLog({
             id: `${dateStr}_${timeStr}_${agentId}`,
             agentId,
             agentName,
@@ -63,23 +44,23 @@ ${JSON.stringify(data, null, 2)}
             filePath
         });
     } catch (dbErr) {
-        console.error('[SecondBrain] DB log failed:', dbErr.message);
+        console.error('[SecondBrain] DB log failed:', dbErr && dbErr.message ? dbErr.message : dbErr);
     }
 
     // Auto-commit to the second brain repo
     try {
       if (fs.existsSync(path.join(VAULT_PATH, '.git'))) {
-        execSync(`git add ${folder}/${fileName}`, { cwd: VAULT_PATH });
-        execSync(`git commit -m "Auto-log: ${type} from ${agentId} at ${timestamp}"`, { cwd: VAULT_PATH });
+        execFileSync('git', ['add', `${folder}/${fileName}`], { cwd: VAULT_PATH });
+        execFileSync('git', ['commit', '-m', `Auto-log: ${type} from ${agentId} at ${timestamp}`], { cwd: VAULT_PATH });
       }
     } catch (gitErr) {
-      console.error('[SecondBrain] Git auto-commit failed:', gitErr.message);
+      console.error('[SecondBrain] Git auto-commit failed:', gitErr && gitErr.message ? gitErr.message : gitErr);
     }
 
     return { success: true, path: filePath };
   } catch (err) {
-    console.error('[SecondBrain] Logging failed:', err);
-    return { success: false, error: err.message };
+    console.error('[SecondBrain] Logging failed:', err && err.message ? err.message : err);
+    return { success: false, error: err && err.message ? err.message : String(err) };
   }
 }
 
