@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
-
 const VAULT_PATH = path.join(__dirname, 'second-brain-vault');
+const { upsertLog } = require('./database');
 
 /**
  * Log agent activity or a deal to the Second Brain vault
@@ -48,15 +48,7 @@ async function logToSecondBrain({
     const filePath = path.join(folderPath, fileName);
 
     // Build Frontmatter
-    let frontmatter = `---
-agent: ${agentId}
-agentName: ${agentName}
-timestamp: ${timestamp}
-type: ${type}
-status: ${status}
-missionId: ${missionId}
-pipelineStep: ${pipelineStep}
-`;
+    let frontmatter = `---\nagent: ${agentId}\nagentName: ${agentName}\ntimestamp: ${timestamp}\ntype: ${type}\nstatus: ${status}\nmissionId: ${missionId}\npipelineStep: ${pipelineStep}\n`;
 
     if (metrics.durationMs) frontmatter += `durationMs: ${metrics.durationMs}\n`;
     if (metrics.tokensTotal) frontmatter += `tokensTotal: ${metrics.tokensTotal}\n`;
@@ -92,6 +84,22 @@ pipelineStep: ${pipelineStep}
 
     await fs.promises.writeFile(filePath, content, 'utf8');
 
+    // NEW: Sync to DB immediately (best-effort)
+    try {
+      await upsertLog({
+        id: `${dateStr}_${timeStr}_${agentId}`,
+        agentId,
+        agentName,
+        type,
+        status,
+        timestamp,
+        content,
+        filePath
+      });
+    } catch (dbErr) {
+      console.error('[SecondBrain] DB log failed:', dbErr && dbErr.message ? dbErr.message : dbErr);
+    }
+
     // Auto-commit to the second brain repo
     try {
       if (fs.existsSync(path.join(VAULT_PATH, '.git'))) {
@@ -99,13 +107,13 @@ pipelineStep: ${pipelineStep}
         execFileSync('git', ['commit', '-m', `Auto-log: ${type} from ${agentId} at ${timestamp}`], { cwd: VAULT_PATH });
       }
     } catch (gitErr) {
-      console.error('[SecondBrain] Git auto-commit failed:', gitErr.message);
+      console.error('[SecondBrain] Git auto-commit failed:', gitErr && gitErr.message ? gitErr.message : gitErr);
     }
 
     return { success: true, path: filePath };
   } catch (err) {
-    console.error('[SecondBrain] Logging failed:', err);
-    return { success: false, error: err.message };
+    console.error('[SecondBrain] Logging failed:', err && err.message ? err.message : err);
+    return { success: false, error: err && err.message ? err.message : String(err) };
   }
 }
 
