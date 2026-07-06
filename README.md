@@ -7,7 +7,7 @@ Transferred UI and agent architecture from Money-Ai-dashboard PR #7.
 ### Agent Architecture
 - **BaseAgent**: Core class for all agents with schema validation (Zod)
 - **HermesManager**: Strategic orchestrator
-- **DennisAgent**: Research & Ideation specialist
+- **DennisAgent**: Research & Ideation specialist  
 - **BunkAgent**: Production & Design specialist
 - **PlatformAgents**: Specialized agents for e-commerce platforms
 
