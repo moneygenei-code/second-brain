@@ -1,0 +1,248 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-mono: var(--font-geist-mono);
+  --color-ring: var(--ring);
+  --color-border: var(--border);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: #020208;
+  --foreground: #e2e8f0;
+  --border: rgba(0, 243, 255, 0.1);
+  --ring: rgba(0, 243, 255, 0.4);
+}
+
+/* Global thin scrollbar for all scrollable elements */
+* {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+*::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Scrollbar thumb styles are defined below with transitions */
+
+/* Enhanced cyan scrollbar for .scrollbar-thin areas */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 243, 255, 0.3) transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  width: 3px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Scrollbar thumb styles with transitions are defined below */
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #020208;
+  font-family: var(--font-geist-mono), 'Courier New', Courier, monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Selection color */
+::selection {
+  background: rgba(0, 243, 255, 0.25);
+  color: #fff;
+}
+
+/* Grid animation for launcher */
+@keyframes gridScroll {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(60px); }
+}
+
+.animate-grid-scroll {
+  animation: gridScroll 4s linear infinite;
+}
+
+/* Glitch effect for title */
+@keyframes glitch {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(-1px, 1px); }
+  40% { transform: translate(1px, -1px); }
+  60% { transform: translate(-1px, 0); }
+  80% { transform: translate(1px, 1px); }
+}
+
+.animate-glitch {
+  animation: glitch 5s ease-in-out infinite;
+}
+
+/* Shimmer/shine sweep for buttons */
+@keyframes shimmer {
+  0% { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(200%) skewX(-15deg); }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+/* Soft pulse glow for active elements */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 8px rgba(0, 243, 255, 0.15); }
+  50% { box-shadow: 0 0 16px rgba(0, 243, 255, 0.3); }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2.5s ease-in-out infinite;
+}
+
+/* Subtle float animation */
+@keyframes softFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-soft-float {
+  animation: softFloat 4s ease-in-out infinite;
+}
+
+/* Focus ring for all interactive elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 243, 255, 0.3), 0 0 0 4px rgba(0, 243, 255, 0.1);
+  border-radius: inherit;
+}
+
+/* ─── Noise Texture Overlay ─────────────────────────────────────── */
+.noise-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px 128px;
+  mix-blend-mode: overlay;
+}
+
+/* ─── Breathing Glow Animation ──────────────────────────────────── */
+@keyframes breathingGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(0, 243, 255, 0.1), 0 0 2px rgba(0, 243, 255, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.2), 0 0 6px rgba(0, 243, 255, 0.1);
+  }
+}
+
+.animate-breathing-glow {
+  animation: breathingGlow 3s ease-in-out infinite;
+}
+
+/* ─── Animated Gradient Border Keyframe ─────────────────────────── */
+@keyframes gradientBorderShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Alias for animated gradient borders on stat cards */
+@keyframes borderGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient-border {
+  background-size: 200% 200%;
+  animation: gradientBorderShift 3s ease infinite;
+}
+
+/* ─── Improved Scrollbar with hover transition ──────────────────── */
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(0, 243, 255, 0.3);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 243, 255, 0.5);
+}
+
+/* ─── Grid Background Pattern ───────────────────────────────────── */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* ─── Scroll Gradient Fade (bottom) ─────────────────────────────── */
+.scroll-fade-bottom {
+  -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+}
+
+/* ─── Animated Focus Ring (for command palette / search inputs) ─── */
+@keyframes focusRingPulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(0, 243, 255, 0.3), 0 0 0 3px rgba(0, 243, 255, 0.1); }
+  50% { box-shadow: 0 0 0 1px rgba(0, 243, 255, 0.5), 0 0 0 4px rgba(0, 243, 255, 0.15); }
+}
+
+.animate-focus-ring {
+  animation: focusRingPulse 2s ease-in-out infinite;
+}
+
+/* ─── Animated Gradient Top Border ──────────────────────────────── */
+@keyframes gradientTopBorder {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.gradient-top-border::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #00d4ff, #9d4edd, #ff3c8e, #ffb700, #10b981, #00d4ff);
+  background-size: 200% 100%;
+  animation: gradientTopBorder 4s linear infinite;
+  z-index: 10;
+}

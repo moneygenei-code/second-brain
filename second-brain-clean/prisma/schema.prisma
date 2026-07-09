@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model KnowledgeNode {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @default("")
+  category  String   @default("general")
+  source    String   @default("manual")
+  pinned    Boolean  @default(false)
+  embedding String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tags       KnowledgeNodeTag[]
+  connectionsFrom NodeConnection[] @relation("FromNode")
+  connectionsTo   NodeConnection[] @relation("ToNode")
+}
+
+model Tag {
+  id    String             @id @default(cuid())
+  name  String             @unique
+  nodes KnowledgeNodeTag[]
+}
+
+model KnowledgeNodeTag {
+  nodeId String
+  tagId  String
+  node   KnowledgeNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  tag    Tag           @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([nodeId, tagId])
+}
+
+model NodeConnection {
+  id         String   @id @default(cuid())
+  fromNodeId String
+  toNodeId   String
+  strength   Float    @default(0.5)
+  label      String   @default("")
+  createdAt  DateTime @default(now())
+
+  fromNode KnowledgeNode @relation("FromNode", fields: [fromNodeId], references: [id], onDelete: Cascade)
+  toNode   KnowledgeNode @relation("ToNode", fields: [toNodeId], references: [id], onDelete: Cascade)
+}
+
+model AnalysisLog {
+  id        String   @id @default(cuid())
+  type      String
+  summary   String
+  detail    String   @default("")
+  createdAt DateTime @default(now())
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @default("")
+  category  String   @default("general")
+  updatedAt DateTime @updatedAt
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  action    String
+  detail    String   @default("")
+  category  String   @default("general")
+  createdAt DateTime @default(now())
+}
+
+model ApiKey {
+  id           String    @id @default(cuid())
+  name         String
+  keyPrefix    String    @unique
+  keyHash      String
+  lastUsedAt   DateTime?
+  requestCount Int       @default(0)
+  createdAt    DateTime  @default(now())
+  expiresAt    DateTime?
+}
+
+model AgentMemory {
+  id        String   @id @default(cuid())
+  content   String
+  category  String   @default("insight")
+  source    String   @default("manual")
+  metadata  String   @default("{}")
+  relevance Float    @default(1.0)
+  accessCount Int    @default(0)
+  lastAccessedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
